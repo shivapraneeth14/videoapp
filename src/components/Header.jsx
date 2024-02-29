@@ -6,11 +6,14 @@ import { Link } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import Login from './Login';
 import Button from './Button';
-
+import { ID } from 'appwrite';
 function Header() {
     const [showmenu, setshowmenu] = useState(false);
     const [videos, setvideos] = useState([]);
     const windowtheme = useSelector(state => state.theme || "light");
+    const [Search,setsearch] = useState([])
+    const [searchresults,setsearchresults] = useState([])
+    const [selectedfile,setselectedfile] = useState("")
 
     useEffect(() => {
         console.log("received")
@@ -44,7 +47,40 @@ function Header() {
 
         fetchVideos();
     }, []);
-
+    useEffect(() => {
+        const handleSearch = () => {
+            if (typeof Search === 'string') {
+                const filteredData = videos.filter(item => item.name.toLowerCase().includes(Search.toLowerCase()));
+                setsearchresults(filteredData);
+            } else {
+                setsearchresults([]); 
+            }
+        };
+    
+        handleSearch();
+    }, [Search, videos]);
+    const select = (e) => {
+        const file = e.target.files[0];
+        setselectedfile(file);
+    };
+    const generateFileId = () => {
+        return ID.unique(); 
+    };
+    const handleUpload = async () => {
+        if (selectedfile) {
+            try {
+                const fileId = generateFileId(); 
+             
+                const response = await storage.createFile("65da24431a9b4fb05538", selectedfile, fileId); 
+                console.log('File uploaded:', response);
+            } catch (error) {
+                console.error('Error uploading file:', error);
+            }
+        } else {
+            console.error('No file selected for upload');
+        }
+    };
+   
     return (
         <><div className={`w-full h-screen  ${windowtheme === "light"?" bg-slate-600":" bg-white"} `}>
             <div className=' fixed top-0 left-0 z-10 border-t-gray-600 w-full h-16 px-2 bg-transparent flex justify-between items-center'>
@@ -66,10 +102,17 @@ function Header() {
 
                 <form className='flex' action="">
                     <input
+                    onChange={(e)=>setsearch(e.target.value)}
                         className='  w-full md:w-72 h-7  rounded-xl border border-gray-300 focus:border-blue-500 outline-none px-2 '
                         type="text"
                         placeholder="Search..." />
-                    <div className=' border border-gray-300 focus:border-blue-500 w-10 h-7 rounded-full bg-transparent flex items-center justify-center'>
+                        <div className=' bg-white absolute top-12'>
+                        {searchresults.length > 0 && (
+                     <ul className=' bg-transparent'>
+                         {searchresults.map((item, index) => (
+                              <li className=' w-full md:w-72 h-12 border border-gray-600' key={index}>{item.name}</li> ))}
+                     </ul>)}</div>
+                    <div  className=' border border-gray-300 focus:border-blue-500 w-10 h-7 rounded-full bg-transparent flex items-center justify-center'>
                         <FontAwesomeIcon icon={faSearch} />
                     </div>
                 </form>
@@ -121,7 +164,10 @@ function Header() {
                     </div>
                 </div>
                 {showmenu &&   <div className='  flex flex-col mt-1 justify-center items-center'>
-                    <input className=' w-20 text-xs' type="file" />
+                    <input
+                   onChange={select}
+                     className=' w-20 text-xs' type="file" />
+                     <button onClick={handleUpload}>Upload</button>
                 </div>}
               
             </div>
