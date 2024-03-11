@@ -59,27 +59,7 @@ function Header() {
     
         handleSearch();
     }, [Search, videos]);
-    const select = (e) => {
-        const file = e.target.files[0];
-        setselectedfile(file);
-    };
-    const generateFileId = () => {
-        return ID.unique(); 
-    };
-    const handleUpload = async () => {
-        if (selectedfile) {
-            try {
-                const fileId = generateFileId(); 
-             
-                const response = await storage.createFile("65da24431a9b4fb05538", selectedfile, fileId); 
-                console.log('File uploaded:', response);
-            } catch (error) {
-                console.error('Error uploading file:', error);
-            }
-        } else {
-            console.error('No file selected for upload');
-        }
-    };
+   
    
     return (
         <><div className={`w-full h-screen  ${windowtheme === "light"?" bg-slate-600":" bg-white"} `}>
@@ -92,8 +72,7 @@ function Header() {
                 </div>
                 <Link to="/Home">
                 <div className='w-16 h-16 pt-4'>
-                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRSBEt9fkwXzOsrz9aU9dmSoc0Xl783OypEbHBr8K31PasWiEhy76CdAkQbQjtCGFW_P4s&usqp=CAU"  alt="" />
-                </div>
+                  logo </div>
                 </Link>
 
 
@@ -165,9 +144,8 @@ function Header() {
                 </div>
                 {showmenu &&   <div className='  flex flex-col mt-1 justify-center items-center'>
                     <input
-                   onChange={select}
                      className=' w-20 text-xs' type="file" />
-                     <button onClick={handleUpload}>Upload</button>
+                     <button >Upload</button>
                 </div>}
               
             </div>
